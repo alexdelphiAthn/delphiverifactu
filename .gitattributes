@@ -1,0 +1,21 @@
+* text=auto
+
+*.pas text eol=crlf
+*.dpr text eol=crlf
+*.dproj text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
+*.xml text eol=crlf
+*.json text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.res binary
+*.dcu binary
+*.exe binary
+*.dll binary
+*.bpl binary

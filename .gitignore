@@ -1,0 +1,15 @@
+__history/
+__recovery/
+Win32/
+Win64/
+Debug/
+Release/
+*.dcu
+*.exe
+*.dll
+*.bpl
+*.map
+*.identcache
+*.local
+*.stat
+*.~*
