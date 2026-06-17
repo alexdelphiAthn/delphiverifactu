@@ -11,6 +11,7 @@ Este proyecto proporciona una base sólida para integrar normativas fiscales com
 ## 🚀 Características Principales
 
 * **Ciclo de Vida Completo Veri*Factu:** Generación de la estructura XML de alta, cálculo de la huella SHA-256 encadenada, composición de la URL de cotejo del código QR y envoltura en un sobre SOAP para su envío[cite: 3].
+* **Generación del Código QR Tributario:** Renderizado de la imagen del QR (nivel de corrección **M** y zona de silencio según la AEAT) a partir de la URL de cotejo, mediante un *port* nativo de ZXing. **No requiere** librerías de imagen externas.
 * **Firma XAdES Enveloped Nativa:** Utiliza la API nativa de Windows y el almacén de certificados del sistema operativo. **No requiere** la distribución de DLLs adicionales (como OpenSSL), ni la ejecución de procesos externos.
 * **Comunicaciones Directas con la AEAT:** Envío HTTPS nativo a los endpoints oficiales de la Agencia Tributaria extrayendo y utilizando los certificados directamente desde el almacén de Windows[cite: 3].
 * **Validación Estricta:** Verificación local y rigurosa de los formatos y dígitos de control de NIF, NIE y CIF españoles.
@@ -30,6 +31,7 @@ El código de producción está separado de los ejemplos. Entre los módulos bas
 * `Fiscal.Xades.pas`: Motor de firma digital XAdES Enveloped.
 * `Fiscal.DocumentoFiscal.pas`: Utilidades de validación de identificadores fiscales.
 * `Fiscal.EnvioVerifactu.pas`: Motor integral para construir el registro XML de alta de Veri*Factu, calcular hashes, montar la URL del QR y ejecutar la petición SOAP[cite: 3].
+* `DelphiZXIngQRCode.pas`: *Port* a Delphi de ZXing QRCode (Apache 2.0), adaptado para Veri*Factu (nivel de corrección **M** y zona de silencio por defecto). Convierte la URL de cotejo en la matriz del código QR.
 
 ## 💡 Ejemplos de Uso
 
@@ -39,6 +41,18 @@ En el directorio [`examples/`](./examples) encontrarás proyectos de consola lis
 * **`02-documento-fiscal`**: Utilidad para validar el formato de NIF/NIE/CIF desde la línea de comandos.
 * **`03-noverifactu-firma`**: Carga un XML en formato *NO VERI\*FACTU* y le aplica la firma XAdES requerida por la normativa.
 * **`04-envio-verifactu`**: Ejemplo didáctico de integración completa. Lee datos desde un archivo `.ini` (NIF del productor, factura, eslabón anterior de la cadena, entorno PRE/PRO)[cite: 1, 2], construye el registro de ALTA Veri*factu, calcula su huella SHA-256[cite: 1, 3] y remite de manera opcional el registro SOAP a la AEAT[cite: 1].
+* **`05-generar-qr`**: Toma la URL de cotejo de una factura y genera la imagen del **código QR tributario** (nivel de corrección M, zona de silencio), volcándola a un *bitmap* listo para incrustar en el informe de la factura.
+
+> **Compilación de los ejemplos:** son proyectos de consola autocontenidos. Ábrelos en RAD Studio o compílalos con `dcc32 <Programa>.dpr`. Los ejemplos `01`, `03` (firma) y `04` (envío real) usan el almacén de certificados de **Windows**; el `05` usa `Vcl.Graphics`. La construcción de XML, huellas y URLs es multiplataforma.
+
+## 📚 Documentación
+
+Cada bloque funcional cuenta con una guía detallada en [`docs/`](./docs):
+
+* [`docs/envio_verifactu.md`](./docs/envio_verifactu.md): explicación paso a paso del registro de ALTA Veri*Factu — huella encadenada, URL del QR, sobre SOAP y envío a la AEAT.
+* [`docs/generar_qr.md`](./docs/generar_qr.md): generación del código QR tributario a partir de la URL de cotejo (API de `DelphiZXIngQRCode`, nivel M, tamaño de impresión).
+* [`docs/xades.md`](./docs/xades.md): firma XAdES Enveloped para Facturae y NO VERI*FACTU.
+* [`docs/plan_extraccion.md`](./docs/plan_extraccion.md): hoja de extracción y orden de publicación de los módulos.
 
 ## 🗺️ Hoja de Ruta (Roadmap)
 
@@ -48,8 +62,15 @@ En el directorio [`examples/`](./examples) encontrarás proyectos de consola lis
 - [x] Generación de URL de cotejo para Códigos QR[cite: 3].
 - [x] Cálculo de huella encadenada (SHA-256) según especificaciones[cite: 3].
 - [x] Integración de envíos SOAP TLS a los servicios web de la AEAT[cite: 3].
+- [x] Renderizado de la imagen del Código QR a partir de la URL de cotejo (ejemplo `05-generar-qr`).
 - [ ] Generación de estructuras XML para registros No Veri*Factu.
-- [ ] Representación gráfica estandarizada de Códigos QR en informes impresos.
+- [ ] Representación gráfica estandarizada de Códigos QR en informes impresos (leyenda y tamaño normalizados).
+
+## 📄 Licencia y Componentes de Terceros
+
+El código propio de este repositorio se publica bajo licencia **MIT** (ver [`LICENSE`](./LICENSE)).
+
+Se incluye además `DelphiZXIngQRCode.pas`, un *port* a Delphi de **ZXing QRCode** (Debenu Pty Ltd, sobre el proyecto ZXing de Google), distribuido bajo licencia **Apache 2.0**. Consulta [`NOTICE.md`](./NOTICE.md) para los avisos de atribución y las advertencias sobre datos sensibles.
 
 ## ⚠️ Estado del Proyecto y Aviso Legal
 
