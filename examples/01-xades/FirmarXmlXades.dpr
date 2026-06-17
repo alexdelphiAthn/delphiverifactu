@@ -1,4 +1,11 @@
-﻿program FirmarXmlXades;
+﻿{******************************************************************************}
+{  FirmarXmlXades - Ejemplo                                                    }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
+{******************************************************************************}
+
+program FirmarXmlXades;
 
 {$APPTYPE CONSOLE}
 

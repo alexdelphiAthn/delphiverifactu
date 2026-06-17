@@ -1,3 +1,10 @@
+﻿{******************************************************************************}
+{  GenerarQRVerifactu - Ejemplo                                                }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
+{******************************************************************************}
+
 program GenerarQRVerifactu;
 
 {$APPTYPE CONSOLE}

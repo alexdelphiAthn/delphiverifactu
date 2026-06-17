@@ -1,9 +1,12 @@
 # Facturae (factura electronica)
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 `Fiscal.Facturae.pas` construye el XML **Facturae 3.2.x** a partir de *records*
 y lo firma con XAdES reutilizando `Fiscal.Xades`. El nucleo **no depende de base
 de datos** ni de componentes de acceso a datos: la aplicacion (por ejemplo, el
-adaptador de Factuzam) rellena el record y decide donde persistir el resultado.
+adaptador de integración) rellena el record y decide donde persistir el resultado.
 
 ## Idea general
 

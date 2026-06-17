@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {  VerificarNoVerifactu - Ejemplo de uso de Fiscal.VerificarNoVerifactu        }
 {                                                                              }
 {  Verifica los ficheros NO VERI*FACTU generados por los ejemplos 07 y 08:     }
@@ -16,6 +16,9 @@
 {                                                                              }
 {  Nota: NO valida criptograficamente la firma RSA. Para la validacion legal   }
 {  completa de la firma, lleva un registro individual firmado a VALIDe.        }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
 {******************************************************************************}
 program VerificarNoVerifactu;
 

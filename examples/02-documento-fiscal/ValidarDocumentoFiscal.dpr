@@ -1,4 +1,11 @@
-﻿program ValidarDocumentoFiscal;
+﻿{******************************************************************************}
+{  ValidarDocumentoFiscal - Ejemplo                                            }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
+{******************************************************************************}
+
+program ValidarDocumentoFiscal;
 
 {$APPTYPE CONSOLE}
 

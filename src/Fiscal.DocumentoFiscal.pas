@@ -3,6 +3,7 @@
 {  Modulo:       Fiscal.DocumentoFiscal                                        }
 {    Tipo:       Libreria Delphi                                               }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
+{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }

@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {  RegistrarFacturasNoVerifactu - Ejemplo integral NO VERI*FACTU               }
 {                                                                              }
 {  Lee facturas desde un XML sencillo (sin base de datos) y genera los dos     }
@@ -17,6 +17,9 @@
 {                                          [serialCert] [titular]              }
 {        Sin serial/titular -> modo DEMO (huella SHA-256, sin firma).          }
 {        Con serial/titular -> firma XAdES con el certificado de Windows.      }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
 {******************************************************************************}
 program RegistrarFacturasNoVerifactu;
 

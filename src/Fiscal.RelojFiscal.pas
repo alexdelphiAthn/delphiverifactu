@@ -1,8 +1,9 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {                                                                              }
 {  Modulo:       Fiscal.RelojFiscal                                            }
 {    Tipo:       Libreria Delphi (ejemplo didactico)                           }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
+{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }
@@ -19,8 +20,8 @@
 {      - Como fuente de hora de referencia se incluye una consulta HTTP        }
 {        sencilla (cabecera 'Date' de la respuesta), util para el ejemplo.     }
 {                                                                              }
-{    En produccion (Factuzam) la hora de referencia se obtiene por NTP con     }
-{    Indy TIdSNTP (src/Lib/inLibRelojFiscal.pas). El criterio de aceptacion    }
+{    En produccion la hora de referencia se obtiene por NTP con                }
+{    Indy TIdSNTP. El criterio de aceptacion                                   }
 {    es el mismo: diferencia <= 60 s para permitir; en caso contrario, o si    }
 {    no se puede comprobar la hora, se bloquea el registro fiscal.             }
 {******************************************************************************}

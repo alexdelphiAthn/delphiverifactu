@@ -1,5 +1,8 @@
 # Control del reloj fiscal
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 `Fiscal.RelojFiscal.pas` comprueba que la hora con la que se fechan los
 registros NO VERI\*FACTU es exacta. La Orden HAC/1177/2024 exige un margen
 máximo de **un minuto** y que la fecha incluya huso horario.
@@ -62,7 +65,7 @@ esto desde un `.ini`: cambia `DesfaseSimuladoSegundos` para ver `PERMITIDO` o
 ## NTP en producción
 
 Este ejemplo obtiene la hora oficial de la cabecera HTTP `Date` (solo RTL, sin
-dependencias) para que sea fácil de compilar y probar. En producción (Factuzam)
+dependencias) para que sea fácil de compilar y probar. En producción
 la hora se obtiene por **NTP** con Indy `TIdSNTP`, consultando varios servidores
 (`time.google.com`, `time.windows.com`, `pool.ntp.org`) con un timeout por
 servidor. El **criterio de aceptación es el mismo**: diferencia ≤ 60 s. La

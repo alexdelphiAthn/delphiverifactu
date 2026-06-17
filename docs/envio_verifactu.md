@@ -1,9 +1,12 @@
 # Envío de Veri\*factu a la AEAT — explicación del ejemplo
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 Este documento explica, paso a paso, el ejemplo de envío de un registro de
 facturación **Veri\*factu** a la Agencia Tributaria (AEAT) que encontrarás en
 esta carpeta. Es una versión **didáctica y autocontenida** (solo depende de la
-RTL de Delphi) destilada del subsistema real de Factuzam.
+RTL de Delphi) destilada de un subsistema de producción real.
 
 ---
 
@@ -35,7 +38,7 @@ patrón y está en el código real.
 
 ## 2. Qué hace este ejemplo
 
-A partir de una factura estilo Factuzam, la librería:
+A partir de los datos de una factura, la librería:
 
 1. Compone el XML del `RegistroAlta` (esquemas `SuministroLR` /
    `SuministroInformacion`).
@@ -75,13 +78,13 @@ genérico 1100) si el NIF del productor va vacío o mal formado.
 
 ### 4.2 Cargar la factura
 
-La factura se representa con el record `TFacturaVerifactu`, cuyos campos calcan
-las columnas de `fza_facturas`. En producción se cargan por UniDAC desde la BBDD;
+La factura se representa con el record `TFacturaVerifactu`, cuyos campos
+rellena la aplicación. En producción se cargan desde la base de datos;
 en el ejemplo se leen del `.ini` para que compile sin base de datos.
 
 ### 4.3 El encadenamiento (cadena de huellas)
 
-Cada emisor (NIF) tiene **una** cadena de huellas en `fza_verifactu_cadena`. El
+Cada emisor (NIF) tiene **una** cadena de huellas propia. El
 último eslabón se representa con `TEslabonCadena` (serie, número, fecha y huella
 de la última factura aceptada).
 
@@ -259,8 +262,8 @@ indentado para leerlo):
   <sum1:SistemaInformatico>
     <sum1:NombreRazon>Ejemplo Rodríguez González</sum1:NombreRazon>
     <sum1:NIF>99999999R</sum1:NIF>
-    <sum1:NombreSistemaInformatico>Factuzam</sum1:NombreSistemaInformatico>
-    <sum1:IdSistemaInformatico>FZ</sum1:IdSistemaInformatico>
+    <sum1:NombreSistemaInformatico>Ejemplo</sum1:NombreSistemaInformatico>
+    <sum1:IdSistemaInformatico>EJ</sum1:IdSistemaInformatico>
     <sum1:Version>1.0.0</sum1:Version>
     <sum1:NumeroInstalacion>1</sum1:NumeroInstalacion>
     <sum1:TipoUsoPosibleSoloVerifactu>N</sum1:TipoUsoPosibleSoloVerifactu>
@@ -288,8 +291,7 @@ propósito, para mantenerlo legible:
 - **Firma XAdES** del registro (obligatoria en la modalidad No Veri\*factu).
 - Registro de **anulación**.
 
-Todo eso está resuelto en el subsistema real `inLibVerifactuEnvio.pas` /
-`inLibVerifactu.pas`.
+Todo eso está resuelto en el subsistema de producción real.
 
 ---
 
@@ -309,5 +311,3 @@ Todo eso está resuelto en el subsistema real `inLibVerifactuEnvio.pas` /
 - Real Decreto 1007/2023 (Reglamento de sistemas informáticos de facturación).
 - Orden HAC/1177/2024 (especificaciones técnicas y QR tributario).
 - Portal de la AEAT: *Sistemas Informáticos de Facturación y Veri\*factu*.
-- Código de producción: `src/verifactu/inLibVerifactuEnvio.pas`,
-  `src/verifactu/inLibVerifactu.pas`.
