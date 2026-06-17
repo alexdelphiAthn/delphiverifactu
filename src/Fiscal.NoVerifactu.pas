@@ -36,13 +36,17 @@ uses
 const
   // Texto que se congela en el atributo ModoVerifactu del XML de exportacion,
   // para que una verificacion posterior no dependa de la configuracion actual.
-  cModoNoVerifactu = 'NO_VERIFACTU';
+  // Una exportacion firmada es NO_VERIFACTU (legal); una demo sin firma se
+  // marca SIN, para que el verificador trate la falta de firma como aviso y
+  // no como error legal.
+  cModoNoVerifactu  = 'NO_VERIFACTU';
+  cModoSinVerifactu = 'SIN';
 
   // Catalogo de eventos del sistema. El numero interno se traduce al codigo
   // oficial de la AEAT (EventosSIF) con TipoEventoAeat.
   cEventoInicio        = 1;   // AEAT 01 - Inicio del sistema  ("abrir programa")
   cEventoFin           = 2;   // AEAT 02 - Cierre del sistema  ("cerrar programa")
-  cEventoCambioConfig  = 3;   // AEAT 03 - Cambio de configuracion ("cambio de parametros")
+  cEventoCambioConfig  = 3;   // AEAT 90 - Cambio de configuracion ("cambio de parametros")
   cEventoExportFact    = 8;   // AEAT 08 - Exportacion del registro de facturacion
   cEventoExportEventos = 9;   // AEAT 09 - Exportacion del registro de eventos
   cEventoOtros         = 90;  // AEAT 90 - Evento voluntario / incidencia
@@ -230,10 +234,12 @@ end;
 
 function TipoEventoAeat(ACodigo: Integer): string;
 begin
+  // Mapeo a los codigos oficiales EventosSIF. "Cambio de configuracion" y los
+  // eventos de aplicacion ("factura creada") se registran como evento
+  // voluntario 90 (cae en el else), no como codigos de arranque/cierre.
   case ACodigo of
     cEventoInicio:        Result := '01';
     cEventoFin:           Result := '02';
-    cEventoCambioConfig:  Result := '03';
     cEventoExportFact:    Result := '08';
     cEventoExportEventos: Result := '09';
   else
@@ -444,7 +450,8 @@ begin
       '" Generado="' + EscaparXml(FechaHoraHusoSif(Now)) +
       '" Version="' + EscaparXml(AVersion) +
       '" Usuario="' + EscaparXml(AUsuario) +
-      '" ModoVerifactu="' + cModoNoVerifactu + '">');
+      '" ModoVerifactu="' +
+      IfThen(FFirmar, cModoNoVerifactu, cModoSinVerifactu) + '">');
     for i := 0 to High(FEventos) do
     begin
       oEvento := FEventos[i];
@@ -551,9 +558,19 @@ function XmlExportacionFacturacion(
   const ARegistros: TArray<TRegistroFacturacionNoVerifactu>;
   const AVersion, AUsuario: string): string;
 var
-  oSb: TStringBuilder;
-  i:   Integer;
+  oSb:   TStringBuilder;
+  i:     Integer;
+  sModo: string;
 begin
+  // NO_VERIFACTU solo si hay registros y TODOS estan firmados; si alguno va
+  // sin firma, es una exportacion demo (SIN).
+  sModo := cModoNoVerifactu;
+  if Length(ARegistros) = 0 then
+    sModo := cModoSinVerifactu
+  else
+    for i := 0 to High(ARegistros) do
+      if not ARegistros[i].Firmado then
+        sModo := cModoSinVerifactu;
   oSb := TStringBuilder.Create;
   try
     oSb.Append('<?xml version="1.0" encoding="UTF-8"?>');
@@ -562,7 +579,7 @@ begin
       '" Generado="' + EscaparXml(FechaHoraHusoSif(Now)) +
       '" Version="' + EscaparXml(AVersion) +
       '" Usuario="' + EscaparXml(AUsuario) +
-      '" ModoVerifactu="' + cModoNoVerifactu + '">');
+      '" ModoVerifactu="' + sModo + '">');
     for i := 0 to High(ARegistros) do
     begin
       oSb.Append('<RegistroFactura>');
