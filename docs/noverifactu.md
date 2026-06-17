@@ -223,6 +223,45 @@ Para verlo **denegar** por reloj, edita en `facturas.xml`:
 
 ---
 
+## Por qué importa de verdad: el cotejo en una inspección
+
+La cadena de huellas, la firma XAdES y el control de reloj sirven para demostrar
+que **los registros no se han alterado ni borrado después**. Pero a Hacienda le
+interesa además otra cosa: que el registro de facturación **refleje toda la
+actividad real** de la empresa. Y eso lo comprueba **cruzando tus datos con los
+de terceros**.
+
+Un cotejo clásico es el del **consumo eléctrico**. En una inspección, la AEAT
+puede solicitar a la **compañía de suministro eléctrico** los movimientos y el
+consumo del local del contribuyente, y compararlos con el registro de
+facturación:
+
+- Si el consumo eléctrico es propio de una actividad intensa (p. ej. un
+  restaurante lleno, un obrador, un taller que trabaja muchas horas) pero el
+  registro de facturación declara muy pocas ventas, ese desajuste apunta a
+  **ventas no declaradas**, es decir, a un posible **fraude de facturación**.
+- Si el consumo es coherente con las ventas registradas, el cotejo **confirma**
+  los datos y ayuda a **descartar** el fraude.
+
+El consumo eléctrico es solo uno de los indicadores; la AEAT cruza también con
+datos de TPV/datáfono, proveedores, compras, personal, movimientos bancarios,
+etc. La idea es la misma: contrastar el registro con fuentes externas
+independientes.
+
+**Qué significa esto para quien programa el sistema:**
+
+- El registro de facturación debe recoger **todas** las operaciones, **en el
+  momento** en que ocurren. No vale dejar ventas fuera ni "ajustar" totales
+  luego.
+- **No** ofrezcas una forma de borrar o saltarse una venta del registro. Una
+  corrección se hace con una **anulación** o una **rectificativa** que quedan
+  encadenadas, nunca eliminando el registro original.
+- La integridad técnica (huella + firma + reloj) y la integridad de negocio
+  (registrar todo, sin huecos) van juntas: la primera prueba que no manipulaste
+  los registros; la segunda es lo que el cotejo con terceros confirma.
+
+---
+
 ## Aviso legal
 
 Código con fines **didácticos**. No sustituye al asesoramiento fiscal ni
