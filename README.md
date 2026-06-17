@@ -30,6 +30,7 @@ El código de producción está separado de los ejemplos. Entre los módulos bas
 
 * `Fiscal.Xades.pas`: Motor de firma digital XAdES Enveloped.
 * `Fiscal.DocumentoFiscal.pas`: Utilidades de validación de identificadores fiscales.
+* `Fiscal.Facturae.pas`: Generación del XML **Facturae 3.2.x** (factura electrónica) a partir de *records*, con validación de datos mínimos y firma XAdES (política Facturae) reutilizando `Fiscal.Xades`. Sin base de datos.
 * `Fiscal.EnvioVerifactu.pas`: Motor integral para construir el registro XML de alta de Veri*Factu, calcular hashes, montar la URL del QR y ejecutar la petición SOAP[cite: 3].
 * `Fiscal.NoVerifactu.pas`: Registros del modo **NO VERI\*FACTU**: libro de eventos del sistema (EventosSIF, encadenado por huella) y registro de facturación local firmado, con exportación a XML. Reutiliza `Fiscal.Xades` para la firma obligatoria.
 * `Fiscal.RelojFiscal.pas`: Control del reloj fiscal (margen legal de un minuto) que exige la Orden HAC/1177/2024 antes de fechar registros NO VERI\*FACTU.
@@ -49,8 +50,9 @@ En el directorio [`examples/`](./examples) encontrarás proyectos de consola lis
 * **`07-noverifactu-eventos`**: Registra el **libro de eventos** NO VERI\*FACTU (`abrir programa`, `factura creada`, `cambio de parámetros`, `cerrar programa`), encadenado por huella y firmado con XAdES, y lo exporta a XML.
 * **`08-noverifactu-facturas`**: Ejemplo integral. **Lee facturas desde un XML** (sin base de datos), comprueba el reloj, construye y firma cada `RegistroAlta`, encadena las huellas y escribe los dos ficheros legales (`_facturacion.xml` y `_eventos.xml`).
 * **`09-verificar-noverifactu`**: **Verifica** los ficheros que generan `07`/`08` — estructura, cadena de huellas, coherencia de huella/firma y perfil XAdES — y escribe un informe. Es el complemento del generador: genera con `07`/`08`, verifica con `09`.
+* **`10-facturae`**: **Lee una factura desde un XML** (sin base de datos), construye el documento **Facturae 3.2.2** y, si indicas certificado, lo firma con XAdES (política Facturae) generando el `.xsig`. Sin certificado escribe el XML sin firmar (demo).
 
-> **Compilación de los ejemplos:** son proyectos de consola autocontenidos. Ábrelos en RAD Studio o compílalos con `dcc32 <Programa>.dpr`. Los ejemplos `01`, `03` (firma), `04` (envío real) y la firma de `07`/`08` usan el almacén de certificados de **Windows**; los ejemplos `08` y `09` leen XML con `Xml.XMLDoc` (MSXML en Windows); el `05` usa `Vcl.Graphics`. La construcción de XML, huellas, URLs y el control de reloj (`06`) es multiplataforma; los ejemplos `07` y `08` funcionan también en modo demo (huella SHA-256, sin firma) si no indicas certificado.
+> **Compilación de los ejemplos:** son proyectos de consola autocontenidos. Ábrelos en RAD Studio o compílalos con `dcc32 <Programa>.dpr`. Los ejemplos `01`, `03` (firma), `04` (envío real), la firma de `07`/`08` y la del `10` usan el almacén de certificados de **Windows**; los ejemplos `08`, `09` y `10` leen XML con `Xml.XMLDoc` (MSXML en Windows); el `05` usa `Vcl.Graphics`. La construcción de XML, huellas, URLs y el control de reloj (`06`) es multiplataforma; los ejemplos `07`, `08` y `10` funcionan también en modo demo (sin firma) si no indicas certificado.
 
 ## 📚 Documentación
 
@@ -61,6 +63,7 @@ Cada bloque funcional cuenta con una guía detallada en [`docs/`](./docs):
 * [`docs/verificar_noverifactu.md`](./docs/verificar_noverifactu.md): verificador local de los ficheros NO VERI\*FACTU — qué comprueba (cadena, huellas, perfil XAdES) y qué no (la firma RSA va a VALIDe).
 * [`docs/envio_verifactu.md`](./docs/envio_verifactu.md): explicación paso a paso del registro de ALTA Veri*Factu — huella encadenada, URL del QR, sobre SOAP y envío a la AEAT.
 * [`docs/generar_qr.md`](./docs/generar_qr.md): generación del código QR tributario a partir de la URL de cotejo (API de `DelphiZXIngQRCode`, nivel M, tamaño de impresión).
+* [`docs/facturae.md`](./docs/facturae.md): generación y firma del XML **Facturae 3.2.x** a partir de *records*, sin base de datos.
 * [`docs/xades.md`](./docs/xades.md): firma XAdES Enveloped para Facturae y NO VERI*FACTU.
 * [`docs/plan_extraccion.md`](./docs/plan_extraccion.md): hoja de extracción y orden de publicación de los módulos.
 
@@ -76,6 +79,7 @@ Cada bloque funcional cuenta con una guía detallada en [`docs/`](./docs):
 - [x] Generación de estructuras XML para registros No Veri*Factu (libro de eventos y registro de facturación firmados, ejemplos `07` y `08`).
 - [x] Control del reloj fiscal con margen legal de un minuto (ejemplo `06-reloj-fiscal`).
 - [x] Verificación local de los ficheros NO VERI*Factu exportados — estructura, cadena de huellas y perfil de firma (ejemplo `09-verificar-noverifactu`).
+- [x] Generación y firma XAdES de facturas electrónicas **Facturae 3.2.x** a partir de *records*, sin base de datos (ejemplo `10-facturae`).
 - [ ] Representación gráfica estandarizada de Códigos QR en informes impresos (leyenda y tamaño normalizados).
 
 ## 📄 Licencia y Componentes de Terceros

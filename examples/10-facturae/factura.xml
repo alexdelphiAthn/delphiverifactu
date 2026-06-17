@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Entrada de ejemplo para EmitirFacturae.
+  Sin base de datos: solo este XML. Edita los valores con los de tu prueba.
+
+  Atributos de la raiz:
+    Version    Version Facturae (3.2 / 3.2.1 / 3.2.2). Por defecto 3.2.2.
+    Serie      Serie de la factura.
+    Numero     Numero de la factura.
+    Fecha      Fecha de expedicion en formato dd-mm-aaaa.
+    FormaPago  PaymentMeans Facturae '01'..'19' (01 = al contado).
+    Retencion  Porcentaje de retencion IRPF (0 si no hay).
+
+  Emisor / Receptor: NIF o CIF, razon social y direccion postal. Los datos
+  fiscales espanoles se validan con su digito de control. El receptor publico
+  (FACe) lleva ademas los tres centros DIR3 (OficinaContable, OrganoGestor,
+  UnidadTramitadora); si se dejan vacios, no se emite <AdministrativeCentres>.
+
+  Cada <Linea> aporta cantidad, precio unitario sin IVA y tipo de IVA; la base
+  y las cuotas las calcula la libreria. TipoRecargo es opcional (recargo de
+  equivalencia); dejalo en 0 si no aplica.
+
+  Los identificadores fiscales de este ejemplo son ficticios pero superan el
+  control: NO corresponden a ninguna empresa ni administracion real.
+-->
+<FacturaeEntrada Version="3.2.2"
+                 Serie="2026.A1"
+                 Numero="000005"
+                 Fecha="17-06-2026"
+                 FormaPago="04"
+                 Retencion="0">
+
+  <!-- Empresa emisora (persona juridica, CIF). -->
+  <Emisor Nif="A39000005"
+          RazonSocial="Suministros del Norte SL"
+          Direccion="Calle Mayor 1"
+          CodigoPostal="39001"
+          Poblacion="Santander"
+          Provincia="Cantabria"
+          Pais="ESP"/>
+
+  <!-- Receptor publico (administracion) con centros DIR3 para FACe. -->
+  <Receptor Nif="P3900000E"
+            RazonSocial="Ayuntamiento de Demostracion"
+            Direccion="Plaza del Consistorio 1"
+            CodigoPostal="39002"
+            Poblacion="Santander"
+            Provincia="Cantabria"
+            Pais="ESP"
+            OficinaContable="L01390000"
+            OrganoGestor="L01390000"
+            UnidadTramitadora="L01390000"/>
+
+  <!-- Lineas: base y cuotas calculadas por la libreria. -->
+  <Linea Descripcion="Servicio de consultoria"
+         Cantidad="10"
+         PrecioUnitario="50.00"
+         TipoIva="21"/>
+
+  <Linea Descripcion="Material de oficina"
+         Cantidad="5"
+         PrecioUnitario="12.00"
+         TipoIva="21"/>
+
+</FacturaeEntrada>
