@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Entrada de ejemplo para RegistrarFacturasNoVerifactu.
+  Sin base de datos: solo este XML. Edita los valores con los de tu prueba.
+
+  Atributos de la raiz (control del reloj fiscal):
+    comprobarReloj          1 = comprueba el reloj (por defecto); 0 = lo omite.
+    margenSegundos          Margen legal (maximo 60).
+    desfaseSimuladoSegundos Desfase simulado del reloj, en segundos. Pon 90
+                            para ver como se DENIEGA la emision.
+-->
+<FacturasNoVerifactu comprobarReloj="1"
+                     margenSegundos="60"
+                     desfaseSimuladoSegundos="0">
+
+  <!-- Sistema informatico que emite (el software). -->
+  <Productor NombreRazon="Ejemplo Sánchez Cornejo"
+             NIF="99999999R"
+             NombreSistema="Ejemplo"
+             IdSistema="EJ"
+             Version="1.0.0"
+             NumeroInstalacion="1"/>
+
+  <!-- Empresa obligada a emitir. -->
+  <Emisor NIF="12345678Z"
+          NombreRazon="Ejemplo Romero de Palma"/>
+
+  <!-- Ultimo eslabon de la cadena. Vacio = estas facturas inician la cadena. -->
+  <CadenaAnterior Serie="" Numero="" Fecha="" Huella=""/>
+
+  <!-- Factura completa (F1): exige NIF del cliente. -->
+  <Factura Serie="2026.A1"
+           Numero="000154"
+           Fecha="17-06-2026"
+           Tipo="NORMAL"
+           NifCliente="12345678Z"
+           NombreCliente="Cliente de Ejemplo, S.A."
+           Descripcion="Venta de mercancia">
+    <Banda PorcentajeIva="21" BaseImponible="100.00"/>
+  </Factura>
+
+  <!-- Factura simplificada (F2, ticket): no necesita cliente. Dos tipos de IVA. -->
+  <Factura Serie="2026.A1"
+           Numero="000155"
+           Fecha="17-06-2026"
+           Tipo="SIMPLIFICADA"
+           Descripcion="Venta en mostrador">
+    <Banda PorcentajeIva="21" BaseImponible="50.00"/>
+    <Banda PorcentajeIva="10" BaseImponible="20.00"/>
+  </Factura>
+
+</FacturasNoVerifactu>
