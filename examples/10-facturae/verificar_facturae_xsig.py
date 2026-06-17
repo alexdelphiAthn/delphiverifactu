@@ -3,6 +3,8 @@
 # Comprueba la firma XMLDSig y el perfil XAdES del fichero que genera
 # EmitirFacturae en modo firmado. Es solo un apoyo de desarrollo: NO sustituye
 # la validacion oficial (VALIDe / FACe).
+# Las firmas XAdES generadas por este ejemplo tienen 3 referencias XMLDSig:
+# documento, SignedProperties y KeyInfo.
 #
 # Requiere Python con:  pip install lxml signxml
 # Uso:                  python verificar_facturae_xsig.py eDoc_2026_A1_000005.xsig
