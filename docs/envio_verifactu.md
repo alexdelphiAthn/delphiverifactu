@@ -51,12 +51,10 @@ A partir de una factura estilo Factuzam, la librería:
 
 ```
 examples/04-envio-verifactu/
-└── EnviarDatosVerifactu.dpr   ← programa de consola de la demostración
- ── EnviarDatosVerifactu.ini   ← datos variables (NIF, factura, cadena, entorno)
-
-docs/
+├── EnviarDatosVerifactu.dpr   ← programa de consola de la demostración
+├── EnviarDatosVerifactu.ini   ← datos variables (NIF, factura, cadena, entorno)
+├── facturas.sql               ← tabla fza_facturas + fza_verifactu_cadena (demo)
 └── envio_verifactu.md         ← este documento
-
 
 src/
 └── Fiscal.EnvioVerifactu.pas  ← la librería (unit Fiscal.EnvioVerifactu)
@@ -170,7 +168,38 @@ producción la hace `DelphiZXIngQRCode`.)
 
 ---
 
-## 6. Cómo compilar y ejecutar
+## 6. Mapeo con la base de datos
+
+El record `TFacturaVerifactu` ↔ tabla `fza_facturas`:
+
+| Campo del record         | Columna `fza_facturas`         |
+|--------------------------|--------------------------------|
+| `Serie`                  | `SERIE_FAC`                    |
+| `Numero`                 | `NUMERO_FAC`                   |
+| `Fecha`                  | `FECHA_FAC`                    |
+| `Tipo`                   | `TIPO_FAC`                     |
+| `NifEmisor`              | `NIF_EMPRESA_FAC`             |
+| `NombreEmisor`           | `RAZON_SOCIAL_EMPRESA_FAC`    |
+| `NifCliente`             | `NIF_CLIENTE_FAC`            |
+| `NombreCliente`          | `RAZON_SOCIAL_CLIENTE_FAC`   |
+| `Bandas[].Porcentaje`    | `PORCENTAJE_IVAN_FAC`, …      |
+| `Bandas[].Base`          | `TOTAL_BASEI_IVAN_FAC`, …     |
+| `Bandas[].Cuota`         | `TOTAL_IVAN_FAC`, …           |
+
+El record `TEslabonCadena` ↔ tabla `fza_verifactu_cadena`:
+
+| Campo del record | Columna `fza_verifactu_cadena` |
+|------------------|--------------------------------|
+| `Serie`          | `SERIE_FAC_VFCAD`             |
+| `Numero`         | `NUMERO_FAC_VFCAD`            |
+| `Fecha`          | `FECHA_FAC_VFCAD`            |
+| `Huella`         | `HUELLA_VFCAD`              |
+
+El script `facturas.sql` crea ambas tablas (idempotente) con datos de demo.
+
+---
+
+## 7. Cómo compilar y ejecutar
 
 1. Abre `EnviarDatosVerifactu.dpr` en RAD Studio (Delphi) y compílalo, o desde
    línea de comandos:
@@ -192,7 +221,7 @@ producción la hace `DelphiZXIngQRCode`.)
 
 ---
 
-## 7. Demostración (salida real)
+## 8. Demostración (salida real)
 
 Con los datos del `.ini` de ejemplo y, **para que la huella sea reproducible**,
 fijando `FechaHoraHusoGenRegistro = 2026-06-17T10:30:00+02:00`, el programa
@@ -226,11 +255,11 @@ indentado para leerlo):
 <sum1:RegistroAlta>
   <sum1:IDVersion>1.0</sum1:IDVersion>
   <sum1:IDFactura>
-    <sum1:IDEmisorFactura>12345678Z</sum1:IDEmisorFactura>
+    <sum1:IDEmisorFactura>45684134Q</sum1:IDEmisorFactura>
     <sum1:NumSerieFactura>2026.A1000154</sum1:NumSerieFactura>
     <sum1:FechaExpedicionFactura>17-06-2026</sum1:FechaExpedicionFactura>
   </sum1:IDFactura>
-  <sum1:NombreRazonEmisor>Ejemplo Perro Sánchez</sum1:NombreRazonEmisor>
+  <sum1:NombreRazonEmisor>Alejandro Laorden Hidalgo</sum1:NombreRazonEmisor>
   <sum1:TipoFactura>F1</sum1:TipoFactura>
   <sum1:DescripcionOperacion>Venta de mercancia</sum1:DescripcionOperacion>
   <sum1:Destinatarios>
@@ -253,17 +282,17 @@ indentado para leerlo):
   <sum1:ImporteTotal>121.00</sum1:ImporteTotal>
   <sum1:Encadenamiento>
     <sum1:RegistroAnterior>
-      <sum1:IDEmisorFactura>12345678Z</sum1:IDEmisorFactura>
+      <sum1:IDEmisorFactura>45684134Q</sum1:IDEmisorFactura>
       <sum1:NumSerieFactura>2026.A1000153</sum1:NumSerieFactura>
       <sum1:FechaExpedicionFactura>13-06-2026</sum1:FechaExpedicionFactura>
       <sum1:Huella>C6F200EC8EFEFE40F7E45994CC2AB320C145781F19F9614228D2525C60417D03</sum1:Huella>
     </sum1:RegistroAnterior>
   </sum1:Encadenamiento>
   <sum1:SistemaInformatico>
-    <sum1:NombreRazon>Ejemplo Gónzález</sum1:NombreRazon>
-    <sum1:NIF>99999999R</sum1:NIF>
-    <sum1:NombreSistemaInformatico>Ejemplo</sum1:NombreSistemaInformatico>
-    <sum1:IdSistemaInformatico>EJ</sum1:IdSistemaInformatico>
+    <sum1:NombreRazon>Alejandro Laorden Hidalgo</sum1:NombreRazon>
+    <sum1:NIF>45684134Q</sum1:NIF>
+    <sum1:NombreSistemaInformatico>Factuzam</sum1:NombreSistemaInformatico>
+    <sum1:IdSistemaInformatico>FZ</sum1:IdSistemaInformatico>
     <sum1:Version>1.0.0</sum1:Version>
     <sum1:NumeroInstalacion>1</sum1:NumeroInstalacion>
     <sum1:TipoUsoPosibleSoloVerifactu>N</sum1:TipoUsoPosibleSoloVerifactu>
@@ -302,7 +331,7 @@ Todo eso está resuelto en el subsistema real `inLibVerifactuEnvio.pas` /
 - El envío real (`EnviarReal=1`) exige un **certificado válido** instalado en el
   almacén de Windows y un **NIF dado de alta** en el entorno de pruebas de la
   AEAT.
-- Los datos del `.ini` (NIF `99999999R`, cliente `12345678Z`, huella anterior…)
+- Los datos del `.ini` (NIF `45684134Q`, cliente `12345678Z`, huella anterior…)
   son de **ejemplo**: sustitúyelos por los tuyos.
 
 ---
