@@ -84,9 +84,9 @@ sigue los códigos de evento de la AEAT (`EventosSIF`):
 |----------------------------------|:-----------:|----------------|
 | `cEventoInicio` | `01` | "abrir programa" (arranque) |
 | `cEventoFin` | `02` | "cerrar programa" (cierre) |
-| `cEventoCambioConfig` | `03` | "cambio de parámetros" |
 | `cEventoExportFact` | `08` | exportación del registro de facturación |
 | `cEventoExportEventos` | `09` | exportación del registro de eventos |
+| `cEventoCambioConfig` | `90` | "cambio de parámetros" (evento voluntario) |
 | `cEventoOtros` | `90` | evento voluntario ("factura creada"), incidencias |
 
 Cada evento encadena con el anterior por huella: `HashAnterior → HashPropio`. El
@@ -194,6 +194,20 @@ Para verlo **denegar** por reloj, edita en `facturas.xml`:
 <FacturasNoVerifactu comprobarReloj="1" desfaseSimuladoSegundos="90">
 ```
 
+### `09-verificar-noverifactu` — Verificar lo generado
+
+Comprueba los ficheros de `07`/`08`: estructura, cadena de huellas, coherencia
+de huella/firma y perfil XAdES. Escribe un informe `verificacion_<nombre>.txt`.
+Ver [`verificar_noverifactu.md`](./verificar_noverifactu.md).
+
+```text
+VerificarNoVerifactu.exe noverifactu_facturacion.xml
+```
+
+En demo dará **CORRECTO (con avisos)** (cadena y huellas cuadran, falta la
+firma legal). No valida la firma RSA criptográficamente: para eso, lleva un
+registro individual de `RegistroXmlFirmado` a **VALIDe**.
+
 ---
 
 ## Mapa de unidades
@@ -202,6 +216,7 @@ Para verlo **denegar** por reloj, edita en `facturas.xml`:
 |--------|----------|
 | `Fiscal.RelojFiscal` | Control de hora (margen de un minuto). |
 | `Fiscal.NoVerifactu` | Libro de eventos y registro de facturación NO VERI\*FACTU. |
+| `Fiscal.VerificarNoVerifactu` | Verifica los ficheros exportados (cadena, huellas, perfil XAdES). |
 | `Fiscal.EnvioVerifactu` | Construcción del `RegistroAlta` y la huella (compartido con Veri\*Factu). |
 | `Fiscal.Xades` | Firma XAdES Enveloped (política AGE). |
 

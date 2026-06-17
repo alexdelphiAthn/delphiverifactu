@@ -9,7 +9,7 @@
 {  Este ejemplo registra cuatro eventos tipicos del dia a dia:                 }
 {    - "abrir programa"      -> Inicio del sistema        (codigo AEAT 01)     }
 {    - "factura creada"      -> Evento voluntario         (codigo AEAT 90)     }
-{    - "cambio de parametros"-> Cambio de configuracion   (codigo AEAT 03)     }
+{    - "cambio de parametros"-> Cambio de configuracion   (codigo AEAT 90)     }
 {    - "cerrar programa"     -> Cierre del sistema        (codigo AEAT 02)     }
 {  y vuelca el libro a un XML.                                                 }
 {                                                                              }
