@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {  EnviarDatosVerifactu - Ejemplo de uso de Fiscal.EnvioVerifactu              }
 {                                                                              }
 {  Lee los datos variables de un .ini (NIF productor, factura, eslabon         }
@@ -8,6 +8,9 @@
 {                                                                              }
 {  Uso:  EnviarDatosVerifactu.exe [ruta_al_ini]                               }
 {        Si no se pasa ruta, busca EnviarDatosVerifactu.ini junto al .exe.     }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
 {******************************************************************************}
 program EnviarDatosVerifactu;
 
@@ -65,7 +68,7 @@ begin
       oIni.ReadString('Productor', 'IdSistema', 'EJ'),
       oIni.ReadString('Productor', 'Version', '1.0.0'),
       oIni.ReadString('Productor', 'NumeroInstalacion', '1'));
-    // 2) Factura (mapea columnas *_FAC de fza_facturas)
+    // 2) Factura (datos aportados por la aplicacion)
     oFactura := Default(TFacturaVerifactu);
     oFactura.NifEmisor    := oIni.ReadString('Emisor', 'NIF', '');
     oFactura.NombreEmisor := oIni.ReadString('Emisor', 'NombreRazon', '');
@@ -80,7 +83,7 @@ begin
     oFactura.AnadirBanda(
       ParsearImporte(oIni.ReadString('Factura', 'PorcentajeIva', '0')),
       ParsearImporte(oIni.ReadString('Factura', 'BaseImponible', '0')));
-    // 3) Eslabon anterior de la cadena (fza_verifactu_cadena). Si Huella
+    // 3) Eslabon anterior de la cadena. Si Huella
     // queda vacia, la libreria genera <PrimerRegistro>S</PrimerRegistro>.
     oAnterior.Serie  := oIni.ReadString('CadenaAnterior', 'Serie', '');
     oAnterior.Numero := oIni.ReadString('CadenaAnterior', 'Numero', '');

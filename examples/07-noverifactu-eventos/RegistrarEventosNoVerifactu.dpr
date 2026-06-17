@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {  RegistrarEventosNoVerifactu - Ejemplo de uso de Fiscal.NoVerifactu          }
 {                                                                              }
 {  El modo NO VERI*FACTU obliga a llevar un LIBRO DE EVENTOS del sistema       }
@@ -16,6 +16,9 @@
 {  Uso:  RegistrarEventosNoVerifactu.exe [salida.xml] [serialCert] [titular]   }
 {        Sin serial/titular -> modo DEMO (solo huella SHA-256, sin firma).     }
 {        Con serial/titular -> firma XAdES con el certificado de Windows.      }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
 {******************************************************************************}
 program RegistrarEventosNoVerifactu;
 

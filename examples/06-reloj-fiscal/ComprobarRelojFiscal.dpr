@@ -1,4 +1,4 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {  ComprobarRelojFiscal - Ejemplo de uso de Fiscal.RelojFiscal                 }
 {                                                                              }
 {  El modo NO VERI*FACTU exige fechar los registros con la hora exacta (margen }
@@ -10,6 +10,9 @@
 {                                                                              }
 {  Uso:  ComprobarRelojFiscal.exe [ruta_al_ini]                               }
 {        Si no se pasa ruta, busca ComprobarRelojFiscal.ini junto al .exe.     }
+{                                                                              }
+{  Autor:  Alejandro Laorden Hidalgo                                           }
+{  Email:  alejandro.laorden@protonmail.com                                    }
 {******************************************************************************}
 program ComprobarRelojFiscal;
 

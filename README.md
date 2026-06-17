@@ -1,5 +1,8 @@
 # Delphi Verifactu
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **Librerías nativas en Delphi para la generación, firma electrónica (XAdES), comunicación y validación de registros de facturación** adaptados a las normativas fiscales españolas (Real Decreto 1007/2023: Veri*Factu, Sistemas Informáticos de Facturación No Veri*Factu, Facturae y TicketBAI).

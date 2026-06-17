@@ -1,3 +1,5 @@
+# Autor: Alejandro Laorden Hidalgo <alejandro.laorden@protonmail.com>
+#
 # Verificacion local opcional de un Facturae firmado (.xsig).
 #
 # Comprueba la firma XMLDSig y el perfil XAdES del fichero que genera

@@ -1,5 +1,8 @@
 # Avisos
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 Este proyecto publica codigo Delphi propio bajo licencia MIT.
 
 La unidad `Fiscal.Xades.pas` usa la API criptografica de Windows

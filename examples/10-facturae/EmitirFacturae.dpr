@@ -14,6 +14,9 @@
 {  Uso:  EmitirFacturae.exe [factura.xml] [salida] [serialCert] [titular]      }
 {        Sin serial/titular -> modo DEMO (XML sin firmar).                     }
 {        Con serial/titular -> firma XAdES con el certificado de Windows.      }
+{                                                                               }
+{  Autor:  Alejandro Laorden Hidalgo                                            }
+{  Email:  alejandro.laorden@protonmail.com                                     }
 {******************************************************************************}
 program EmitirFacturae;
 

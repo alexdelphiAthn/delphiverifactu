@@ -1,5 +1,8 @@
 # Firma XAdES
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 `Fiscal.Xades.pas` firma XML en modo XAdES Enveloped usando certificados del
 almacen personal de Windows.
 

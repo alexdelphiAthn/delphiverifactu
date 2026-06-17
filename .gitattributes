@@ -1,21 +1,22 @@
-* text=auto
+# Autor: Alejandro Laorden Hidalgo <alejandro.laorden@protonmail.com>
+#
+# Politica de codificacion del repositorio (proyecto Delphi para Windows):
+#   - Fin de linea CRLF en todos los ficheros de texto.
+#   - Los ficheros se almacenan tal cual, sin normalizar a LF.
+#   - .pas y .dpr en UTF-8 con BOM; .xml en UTF-8 sin BOM.
 
-*.pas text eol=crlf
-*.dpr text eol=crlf
-*.dproj text eol=crlf
-*.md text eol=crlf
-*.txt text eol=crlf
-*.xml text eol=crlf
-*.json text eol=crlf
+# No normalizar finales de linea: mantener CRLF tal cual, tratandolos como texto.
+* -text diff
 
-*.png binary
-*.jpg binary
+# Binarios reales (sin diff textual)
+*.png  binary
+*.jpg  binary
 *.jpeg binary
-*.gif binary
-*.ico binary
-*.pdf binary
-*.res binary
-*.dcu binary
-*.exe binary
-*.dll binary
-*.bpl binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.res  binary
+*.dcu  binary
+*.exe  binary
+*.dll  binary
+*.bpl  binary

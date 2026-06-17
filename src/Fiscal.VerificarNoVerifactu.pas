@@ -1,8 +1,9 @@
-{******************************************************************************}
+﻿{******************************************************************************}
 {                                                                              }
 {  Modulo:       Fiscal.VerificarNoVerifactu                                   }
 {    Tipo:       Libreria Delphi (ejemplo didactico)                           }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
+{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }

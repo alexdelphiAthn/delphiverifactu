@@ -1,3 +1,17 @@
+﻿{******************************************************************************}
+{                                                                              }
+{  Modulo:       DelphiZXingQRCode                                             }
+{    Tipo:       Componente de terceros (port de ZXing QRCode)                 }
+{                                                                              }
+{  Port original: Debenu Pty Ltd (www.debenu.com), sobre ZXing.                }
+{  Distribuido bajo licencia Apache 2.0. El aviso de copyright                 }
+{  y de licencia original se conserva mas abajo, sin modificar.                }
+{                                                                              }
+{  Integracion y adaptacion para Veri*factu:                                   }
+{    Alejandro Laorden Hidalgo                                                 }
+{    alejandro.laorden@protonmail.com                                          }
+{                                                                              }
+{******************************************************************************}
 unit DelphiZXingQRCode;
 
 // ZXing QRCode port to Delphi, by Debenu Pty Ltd (www.debenu.com)

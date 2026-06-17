@@ -1,5 +1,8 @@
 # Verificador de registros NO VERI\*FACTU
 
+> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
+
+
 `Fiscal.VerificarNoVerifactu.pas` comprueba **en local**, sin red ni procesos
 externos, los ficheros que genera `Fiscal.NoVerifactu` (los del ejemplo
 [`08-noverifactu-facturas`](../examples/08-noverifactu-facturas) y

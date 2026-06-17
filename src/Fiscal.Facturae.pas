@@ -3,6 +3,7 @@
 {  Modulo:       Fiscal.Facturae                                               }
 {    Tipo:       Libreria Delphi                                               }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
+{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }
@@ -18,8 +19,8 @@
 {      3. EmitirFacturaeFirmada -> valida, construye y firma en un paso        }
 {         (.xsig); requiere certificado en el almacen de Windows.             }
 {                                                                              }
-{    El nucleo no lee tablas fza_*: la aplicacion (p. ej. el adaptador de      }
-{    Factuzam) construye el record y decide donde persistir el resultado.      }
+{    El nucleo no accede a base de datos: la aplicacion anfitriona             }
+{    construye el record y decide donde persistir el resultado.                }
 {******************************************************************************}
 unit Fiscal.Facturae;
 
