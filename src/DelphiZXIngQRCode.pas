@@ -57,7 +57,7 @@ type
 implementation
 
 uses
-  contnrs, Math, Classes;
+  System.Contnrs, System.Math, System.Classes;
 
 type
   TByteArray = array of Byte;

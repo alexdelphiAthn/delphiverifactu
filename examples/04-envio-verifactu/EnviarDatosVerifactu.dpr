@@ -61,7 +61,7 @@ begin
     sSif := ConstruirSistemaInformatico(
       oIni.ReadString('Productor', 'NombreRazon', ''),
       oIni.ReadString('Productor', 'NIF', ''),
-      oIni.ReadString('Productor', 'NombreSistema', 'Ejemplo');
+      oIni.ReadString('Productor', 'NombreSistema', 'Ejemplo'),
       oIni.ReadString('Productor', 'IdSistema', 'EJ'),
       oIni.ReadString('Productor', 'Version', '1.0.0'),
       oIni.ReadString('Productor', 'NumeroInstalacion', '1'));

@@ -72,6 +72,7 @@ implementation
 
 uses
   System.Hash, System.IOUtils, System.StrUtils,
+  Xml.xmldom, Xml.omnixmldom,
   Xml.XMLDoc, Xml.XMLIntf,
   Fiscal.NoVerifactu;
 
@@ -273,6 +274,7 @@ end;
 
 function CargarXmlArchivo(const AArchivo: string): IXMLDocument;
 begin
+  DefaultDOMVendor := sOmniXmlVendor;
   Result := TXMLDocument.Create(nil);
   Result.LoadFromFile(AArchivo);
   Result.Active := True;
@@ -285,6 +287,7 @@ begin
   ADocumento := nil;
   if Trim(AXml) <> '' then
     try
+      DefaultDOMVendor := sOmniXmlVendor;
       ADocumento := TXMLDocument.Create(nil);
       ADocumento.LoadFromXML(AXml);
       ADocumento.Active := True;

@@ -27,6 +27,8 @@ uses
   System.StrUtils,
   System.Variants,
   System.IOUtils,
+  Xml.xmldom,
+  Xml.omnixmldom,
   Xml.XMLDoc,
   Xml.XMLIntf,
   Fiscal.Xades in '..\..\src\Fiscal.Xades.pas',
@@ -128,6 +130,7 @@ begin
     raise Exception.Create('No se encuentra el XML de facturas: ' + ARutaXml);
   bFirmar := (ASerial <> '') or (ATitular <> '');
 
+  DefaultDOMVendor := sOmniXmlVendor;
   oDoc := LoadXMLDocument(ARutaXml);
   oRaiz := oDoc.DocumentElement;
 
