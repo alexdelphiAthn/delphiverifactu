@@ -11,7 +11,7 @@ from pathlib import Path
 import sys
 
 from lxml import etree
-from signxml import XMLVerifier
+from signxml import SignatureConfiguration, XMLVerifier
 from signxml.xades import XAdESVerifier
 
 
@@ -30,7 +30,12 @@ def certificado_pem(raiz):
 def verificar(ruta):
     raiz = etree.parse(str(ruta)).getroot()
     cert = certificado_pem(raiz)
-    XMLVerifier().verify(raiz, x509_cert=cert, require_x509=False)
+    XMLVerifier().verify(
+        raiz,
+        x509_cert=cert,
+        require_x509=False,
+        expect_config=SignatureConfiguration(expect_references=3),
+    )
     XAdESVerifier().verify(raiz, x509_cert=cert, require_x509=False)
 
 
