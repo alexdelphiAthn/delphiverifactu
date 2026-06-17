@@ -109,8 +109,15 @@ escribe el XML sin firmar y, con serial + titular, escribe el `.xsig`.
 La firma usa la **politica de firma Facturae** y el rol `emisor`, que aporta
 `Fiscal.Xades.OpcionesXadesFacturae` (ver [`docs/xades.md`](./xades.md)). La
 firma es *enveloped* sobre todo el documento (`URI=""`) e inserta el
-`ds:Signature` como hijo de `Facturae`. El `.xsig` resultante se puede comprobar
-localmente con el script opcional
+`ds:Signature` como hijo de `Facturae`.
+
+El `SignedInfo` incluye tres referencias: el documento firmado, las
+`SignedProperties` XAdES y el `KeyInfo`. Por eso el verificador local configura
+`signxml` con `expect_references=3`; si se usa el valor por defecto de
+`XMLVerifier` (1 referencia), un `.xsig` correcto se rechazara por la herramienta
+de prueba.
+
+El `.xsig` resultante se puede comprobar localmente con el script opcional
 [`examples/10-facturae/verificar_facturae_xsig.py`](../examples/10-facturae/verificar_facturae_xsig.py)
 (`signxml`: `XMLVerifier` / `XAdESVerifier`). No sustituye la validacion oficial
 (VALIDe / FACe).

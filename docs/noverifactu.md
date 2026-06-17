@@ -172,6 +172,8 @@ RegistrarEventosNoVerifactu.exe eventos.xml
 
 :: Modo legal (firma XAdES con certificado de Windows):
 RegistrarEventosNoVerifactu.exe eventos.xml 1a2b3c... "NOMBRE APELLIDOS"
+:: tambien puedes pasar solo el numero de serie:
+RegistrarEventosNoVerifactu.exe eventos.xml 1a2b3c...
 ```
 
 ### `08-noverifactu-facturas` — Facturas + eventos (integral)
@@ -182,6 +184,9 @@ dos ficheros legales.
 
 ```text
 RegistrarFacturasNoVerifactu.exe facturas.xml noverifactu
+
+:: Modo legal (firma XAdES con certificado de Windows):
+RegistrarFacturasNoVerifactu.exe facturas.xml noverifactu 1a2b3c...
 
 :: genera:
 ::   noverifactu_facturacion.xml

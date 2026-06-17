@@ -13,6 +13,18 @@ Funciones publicas principales:
 
 La clave privada no se exporta. La firma se hace mediante CAPI/CNG.
 
+## Certificado
+
+`FirmarXmlXadesEnveloped` busca el certificado en el almacen personal de
+Windows (`MY`) por numero de serie o por titular. El numero de serie se
+normaliza quitando espacios, guiones y dos puntos, y se acepta tanto en el orden
+que muestra el visor de certificados como en el orden inverso que exponen
+algunas APIs de Windows.
+
+Si se solicita firma y el certificado no existe, esta caducado, no tiene clave
+privada o el usuario cancela el acceso a la clave, la funcion lanza excepcion.
+No hay fallback silencioso a huella SHA-256.
+
 ## Facturae
 
 Para Facturae usa:
