@@ -13,10 +13,10 @@ Este proyecto proporciona una base sólida para integrar normativas fiscales com
 
 ## 🚀 Características Principales
 
-* **Ciclo de Vida Completo Veri*Factu:** Generación de la estructura XML de alta, cálculo de la huella SHA-256 encadenada, composición de la URL de cotejo del código QR y envoltura en un sobre SOAP para su envío[cite: 3].
+* **Ciclo de Vida Completo Veri*Factu:** Generación de la estructura XML de alta, cálculo de la huella SHA-256 encadenada, composición de la URL de cotejo del código QR y envoltura en un sobre SOAP para su envío.
 * **Generación del Código QR Tributario:** Renderizado de la imagen del QR (nivel de corrección **M** y zona de silencio según la AEAT) a partir de la URL de cotejo, mediante un *port* nativo de ZXing. **No requiere** librerías de imagen externas.
 * **Firma XAdES Enveloped Nativa:** Utiliza la API nativa de Windows y el almacén de certificados del sistema operativo. **No requiere** la distribución de DLLs adicionales (como OpenSSL), ni la ejecución de procesos externos.
-* **Comunicaciones Directas con la AEAT:** Envío HTTPS nativo a los endpoints oficiales de la Agencia Tributaria extrayendo y utilizando los certificados directamente desde el almacén de Windows[cite: 3].
+* **Comunicaciones Directas con la AEAT:** Envío HTTPS nativo a los endpoints oficiales de la Agencia Tributaria extrayendo y utilizando los certificados directamente desde el almacén de Windows.
 * **Validación Estricta:** Verificación local y rigurosa de los formatos y dígitos de control de NIF, NIE y CIF españoles.
 
 ## ⚙️ Requisitos del Sistema
@@ -34,7 +34,7 @@ El código de producción está separado de los ejemplos. Entre los módulos bas
 * `Fiscal.Xades.pas`: Motor de firma digital XAdES Enveloped.
 * `Fiscal.DocumentoFiscal.pas`: Utilidades de validación de identificadores fiscales.
 * `Fiscal.Facturae.pas`: Generación del XML **Facturae 3.2.x** (factura electrónica) a partir de *records*, con validación de datos mínimos y firma XAdES (política Facturae) reutilizando `Fiscal.Xades`. Sin base de datos.
-* `Fiscal.EnvioVerifactu.pas`: Motor integral para construir el registro XML de alta de Veri*Factu, calcular hashes, montar la URL del QR y ejecutar la petición SOAP[cite: 3].
+* `Fiscal.EnvioVerifactu.pas`: Motor integral para construir el registro XML de alta de Veri*Factu, calcular hashes, montar la URL del QR y ejecutar la petición SOAP.
 * `Fiscal.NoVerifactu.pas`: Registros del modo **NO VERI\*FACTU**: libro de eventos del sistema (EventosSIF, encadenado por huella) y registro de facturación local firmado, con exportación a XML. Reutiliza `Fiscal.Xades` para la firma obligatoria.
 * `Fiscal.RelojFiscal.pas`: Control del reloj fiscal (margen legal de un minuto) que exige la Orden HAC/1177/2024 antes de fechar registros NO VERI\*FACTU.
 * `Fiscal.VerificarNoVerifactu.pas`: Verificación **local** de los ficheros NO VERI\*FACTU exportados — estructura, cadena de huellas, coherencia de huella/firma y perfil XAdES (política AGE). Sin red ni procesos externos.
@@ -47,7 +47,7 @@ En el directorio [`examples/`](./examples) encontrarás proyectos de consola lis
 * **`01-xades`**: Demuestra cómo aplicar una firma a un XML cumpliendo con la política estricta de Facturae.
 * **`02-documento-fiscal`**: Utilidad para validar el formato de NIF/NIE/CIF desde la línea de comandos.
 * **`03-noverifactu-firma`**: Carga un XML en formato *NO VERI\*FACTU* y le aplica la firma XAdES requerida por la normativa.
-* **`04-envio-verifactu`**: Ejemplo didáctico de integración completa. Lee datos desde un archivo `.ini` (NIF del productor, factura, eslabón anterior de la cadena, entorno PRE/PRO)[cite: 1, 2], construye el registro de ALTA Veri*factu, calcula su huella SHA-256[cite: 1, 3] y remite de manera opcional el registro SOAP a la AEAT[cite: 1].
+* **`04-envio-verifactu`**: Ejemplo didáctico de integración completa. Lee datos desde un archivo `.ini` (NIF del productor, factura, eslabón anterior de la cadena, entorno PRE/PRO), construye el registro de ALTA Veri*factu, calcula su huella SHA-256 y remite de manera opcional el registro SOAP a la AEAT.
 * **`05-generar-qr`**: Toma la URL de cotejo de una factura y genera la imagen del **código QR tributario** (nivel de corrección M, zona de silencio), volcándola a un *bitmap* listo para incrustar en el informe de la factura.
 * **`06-reloj-fiscal`**: Comprueba el reloj del sistema y **deniega** si se desfasa más de un minuto. El desfase se puede simular desde un `.ini` para probarlo sin conexión.
 * **`07-noverifactu-eventos`**: Registra el **libro de eventos** NO VERI\*FACTU (`abrir programa`, `factura creada`, `cambio de parámetros`, `cerrar programa`), encadenado por huella y firmado con XAdES, y lo exporta a XML.
@@ -68,16 +68,15 @@ Cada bloque funcional cuenta con una guía detallada en [`docs/`](./docs):
 * [`docs/generar_qr.md`](./docs/generar_qr.md): generación del código QR tributario a partir de la URL de cotejo (API de `DelphiZXIngQRCode`, nivel M, tamaño de impresión).
 * [`docs/facturae.md`](./docs/facturae.md): generación y firma del XML **Facturae 3.2.x** a partir de *records*, sin base de datos.
 * [`docs/xades.md`](./docs/xades.md): firma XAdES Enveloped para Facturae y NO VERI*FACTU.
-* [`docs/plan_extraccion.md`](./docs/plan_extraccion.md): hoja de extracción y orden de publicación de los módulos.
 
 ## 🗺️ Hoja de Ruta (Roadmap)
 
 - [x] Firma XAdES nativa desde Windows.
 - [x] Validación algorítmica de NIF/NIE/CIF.
-- [x] Generación de estructuras XML (Registros de Alta) para sistemas Veri*Factu[cite: 3].
-- [x] Generación de URL de cotejo para Códigos QR[cite: 3].
-- [x] Cálculo de huella encadenada (SHA-256) según especificaciones[cite: 3].
-- [x] Integración de envíos SOAP TLS a los servicios web de la AEAT[cite: 3].
+- [x] Generación de estructuras XML (Registros de Alta) para sistemas Veri*Factu.
+- [x] Generación de URL de cotejo para Códigos QR.
+- [x] Cálculo de huella encadenada (SHA-256) según especificaciones.
+- [x] Integración de envíos SOAP TLS a los servicios web de la AEAT.
 - [x] Renderizado de la imagen del Código QR a partir de la URL de cotejo (ejemplo `05-generar-qr`).
 - [x] Generación de estructuras XML para registros No Veri*Factu (libro de eventos y registro de facturación firmados, ejemplos `07` y `08`).
 - [x] Control del reloj fiscal con margen legal de un minuto (ejemplo `06-reloj-fiscal`).
