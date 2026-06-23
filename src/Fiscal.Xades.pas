@@ -3,7 +3,6 @@
 {  Modulo:       Fiscal.Xades                                                  }
 {    Tipo:       Libreria Delphi                                               }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
-{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }
@@ -56,6 +55,18 @@ type
     ObjetoEncoding:           string;
   end;
 
+  // Hechos de una verificacion criptografica de firma XAdES Enveloped. Quien
+  // llama decide la gravedad de cada uno (error/aviso) segun su contexto.
+  TXadesVerificacion = record
+    Ejecutada:          Boolean;  // True si la criptografia llego a ejecutarse
+    FirmaValida:        Boolean;  // SignatureValue verificado con la clave RSA
+    DigestDocumento:    Boolean;  // digest del documento recomputado coincide
+    CertificadoVigente: Boolean;  // el certificado esta dentro de su validez
+    BindingEvaluado:    Boolean;  // se pudo cotejar SigningCertificate
+    BindingCertificado: Boolean;  // KeyInfo coincide con SigningCertificate
+    Detalle:            string;   // motivo cuando no se pudo ejecutar
+  end;
+
 function OpcionesXadesBase(const APrefijoId: string): TXadesOpciones;
 function OpcionesXadesFacturae(const APrefijoId: string): TXadesOpciones;
 function OpcionesXadesNoVerifactu(const APrefijoId: string): TXadesOpciones;
@@ -65,6 +76,13 @@ function FirmarXmlXadesEnveloped(const AXml: string;
                                   out ADatosCert: TXadesDatosCertificado):
                                   string;
 function NormalizarSerieCertificadoXades(const AValor: string): string;
+// Verificacion CRIPTOGRAFICA de una firma XAdES Enveloped generada por
+// FirmarXmlXadesEnveloped: recomputa el digest del documento (transform
+// enveloped), comprueba el SignatureValue contra la clave publica del
+// certificado del KeyInfo y la vigencia de ese certificado. Pensada para los
+// ficheros de esta libreria (misma canonicalizacion limitada).
+function VerificarFirmaXadesEnveloped(const AXmlFirmado: string):
+  TXadesVerificacion;
 
 implementation
 
@@ -240,6 +258,21 @@ function NCryptSignHash(hKey: ULONG_PTR;
                         stdcall; external cNCrypt;
 function NCryptFreeObject(hObject: ULONG_PTR): Integer;
                           stdcall; external cNCrypt;
+function CertCreateCertificateContext(dwCertEncodingType: DWORD;
+                                      pbCertEncoded: PByte;
+                                      cbCertEncoded: DWORD):
+                                      PXadesCertContext;
+                                      stdcall; external cCrypt32;
+function CryptImportPublicKeyInfo(hCryptProv: ULONG_PTR;
+                                  dwCertEncodingType: DWORD; pInfo: Pointer;
+                                  var phKey: ULONG_PTR): BOOL;
+                                  stdcall; external cCrypt32;
+function CryptVerifySignatureW(hHash: ULONG_PTR; pbSignature: PByte;
+                              dwSigLen: DWORD; hPubKey: ULONG_PTR;
+                              szDescription: PWideChar; dwFlags: DWORD): BOOL;
+                              stdcall; external cAdvApi32;
+function CryptDestroyKey(hKey: ULONG_PTR): BOOL;
+                        stdcall; external cAdvApi32;
 
 function EscaparXml(const AValor: string): string;
 begin
@@ -1406,6 +1439,228 @@ begin
         oOpciones.NombreNodoInsercionFirma, sSignature)
     else
       Result := InsertarFirmaAntesCierreRaiz(sXmlBase, sRaiz, sSignature);
+  finally
+    CertFreeCertificateContext(pCert);
+  end;
+end;
+
+// --- Verificacion criptografica de la firma --------------------------------
+
+// Devuelve el bloque [AIni..AFin] (ambos incluidos) tal cual aparece en el
+// texto, sin pasar por DOM, para conservar los bytes exactos que se firmaron.
+function XvBuscarBloque(const AXml, AIni, AFin: string;
+                        out ABloque: string): Boolean;
+var
+  p1: Integer;
+  p2: Integer;
+begin
+  ABloque := '';
+  Result := False;
+  p1 := Pos(AIni, AXml);
+  if p1 > 0 then
+  begin
+    p2 := Pos(AFin, AXml, p1);
+    if p2 > 0 then
+    begin
+      ABloque := Copy(AXml, p1, (p2 + Length(AFin)) - p1);
+      Result := True;
+    end;
+  end;
+end;
+
+// Texto entre <ANombre ...> y </ANombre> (primera aparicion).
+function XvContenidoElemento(const AXml, ANombre: string;
+                            out AContenido: string): Boolean;
+var
+  p1: Integer;
+  pGt: Integer;
+  p2: Integer;
+begin
+  AContenido := '';
+  Result := False;
+  p1 := Pos('<' + ANombre, AXml);
+  if p1 > 0 then
+  begin
+    pGt := Pos('>', AXml, p1);
+    if pGt > 0 then
+    begin
+      p2 := Pos('</' + ANombre + '>', AXml, pGt);
+      if p2 > 0 then
+      begin
+        AContenido := Copy(AXml, pGt + 1, p2 - (pGt + 1));
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+function XvLimpiarBase64(const AValor: string): string;
+begin
+  Result := StringReplace(AValor, #13, '', [rfReplaceAll]);
+  Result := StringReplace(Result, #10, '', [rfReplaceAll]);
+  Result := StringReplace(Result, #9, '', [rfReplaceAll]);
+  Result := StringReplace(Result, ' ', '', [rfReplaceAll]);
+  Result := Trim(Result);
+end;
+
+// El documento sin la firma (transform enveloped): quita el bloque
+// <ds:Signature ...>...</ds:Signature>.
+function XvQuitarFirma(const AXml: string): string;
+var
+  p1: Integer;
+  p2: Integer;
+begin
+  Result := AXml;
+  p1 := Pos('<ds:Signature', AXml);
+  p2 := UltimaPos('</ds:Signature>', AXml);
+  if (p1 > 0) and (p2 > p1) then
+    Result := Copy(AXml, 1, p1 - 1) +
+      Copy(AXml, p2 + Length('</ds:Signature>'), MaxInt);
+end;
+
+// Verifica el SignatureValue (RSA) contra la clave publica del certificado,
+// sobre el SignedInfo canonicalizado igual que al firmar.
+function XvVerificarFirmaSignedInfo(const ASignedInfo, ASignatureB64: string;
+                                    ACert: PXadesCertContext;
+                                    out APudoEjecutar: Boolean): Boolean;
+var
+  hProv: ULONG_PTR;
+  hKey: ULONG_PTR;
+  hHash: ULONG_PTR;
+  aCanon: TBytes;
+  aSig: TBytes;
+begin
+  Result := False;
+  // Solo se pone a True si la criptografia llega a ejecutarse de verdad; asi un
+  // fallo de entorno (proveedor, importacion de clave) no se confunde con una
+  // firma invalida.
+  APudoEjecutar := False;
+  aCanon := BytesUtf8(CanonicalizarXmlLimitado(ASignedInfo));
+  aSig := TNetEncoding.Base64.DecodeStringToBytes(
+    XvLimpiarBase64(ASignatureB64));
+  if (Length(aCanon) = 0) or (Length(aSig) = 0) then
+    Exit;
+  if (ACert = nil) or (ACert.pCertInfo = nil) then
+    Exit;
+  if not CryptAcquireContextW(hProv, nil, nil, PROV_RSA_AES,
+                              CRYPT_VERIFYCONTEXT) then
+    Exit;
+  try
+    if not CryptImportPublicKeyInfo(hProv,
+        X509_ASN_ENCODING or PKCS_7_ASN_ENCODING,
+        @ACert.pCertInfo^.SubjectPublicKeyInfo, hKey) then
+      Exit;
+    try
+      if not CryptCreateHash(hProv, CALG_SHA_256, 0, 0, hHash) then
+        Exit;
+      try
+        if CryptHashData(hHash, PunteroBytes(aCanon), Length(aCanon), 0) then
+        begin
+          // CryptoAPI maneja la firma RSA en little-endian; la guardada esta
+          // en big-endian (como al firmar), por eso se invierte antes.
+          InvertirBytes(aSig);
+          Result := CryptVerifySignatureW(hHash, PunteroBytes(aSig),
+            Length(aSig), hKey, nil, 0);
+          APudoEjecutar := True;
+        end;
+      finally
+        CryptDestroyHash(hHash);
+      end;
+    finally
+      CryptDestroyKey(hKey);
+    end;
+  finally
+    CryptReleaseContext(hProv, 0);
+  end;
+end;
+
+function VerificarFirmaXadesEnveloped(const AXmlFirmado: string):
+  TXadesVerificacion;
+var
+  sSignedInfo: string;
+  sSigValue: string;
+  sCertB64: string;
+  sDocDigest: string;
+  sSignCertDigest: string;
+  sSubSignCert: string;
+  aCertDer: TBytes;
+  pCert: PXadesCertContext;
+  sCalc: string;
+  p: Integer;
+  bPudoEjecutar: Boolean;
+begin
+  Result := Default(TXadesVerificacion);
+  // Optimista para el digest del documento: solo baja a False ante una
+  // discrepancia real (asi una pieza no localizable no genera un falso fallo).
+  Result.DigestDocumento := True;
+  if not XvBuscarBloque(AXmlFirmado, '<ds:SignedInfo', '</ds:SignedInfo>',
+                        sSignedInfo) then
+  begin
+    Result.Detalle := 'no se encontro el bloque SignedInfo';
+    Exit;
+  end;
+  if not XvContenidoElemento(AXmlFirmado, 'ds:SignatureValue', sSigValue) then
+  begin
+    Result.Detalle := 'no se encontro SignatureValue';
+    Exit;
+  end;
+  if not XvContenidoElemento(AXmlFirmado, 'ds:X509Certificate', sCertB64) then
+  begin
+    Result.Detalle := 'no se encontro el certificado X509 en KeyInfo';
+    Exit;
+  end;
+  try
+    aCertDer := TNetEncoding.Base64.DecodeStringToBytes(
+      XvLimpiarBase64(sCertB64));
+  except
+    aCertDer := nil;
+  end;
+  if Length(aCertDer) = 0 then
+  begin
+    Result.Detalle := 'el certificado X509 no es base64 valido';
+    Exit;
+  end;
+  pCert := CertCreateCertificateContext(
+    X509_ASN_ENCODING or PKCS_7_ASN_ENCODING, PunteroBytes(aCertDer),
+    Length(aCertDer));
+  if pCert = nil then
+  begin
+    Result.Detalle := 'no se pudo interpretar el certificado X509';
+    Exit;
+  end;
+  try
+    Result.CertificadoVigente := CertificadoVigente(pCert);
+    // 1) Firma RSA del SignedInfo: la comprobacion criptografica nuclear.
+    Result.FirmaValida := XvVerificarFirmaSignedInfo(sSignedInfo, sSigValue,
+                                                     pCert, bPudoEjecutar);
+    Result.Ejecutada := bPudoEjecutar;
+    if not bPudoEjecutar then
+      Result.Detalle := 'no se pudo ejecutar la verificacion de la firma RSA';
+    // 2) Digest del documento (la primera DigestValue del SignedInfo es la
+    //    del documento, URI="").
+    if XvContenidoElemento(sSignedInfo, 'ds:DigestValue', sDocDigest) then
+    begin
+      sCalc := DigestSha256Base64(
+        CanonicalizarXmlLimitado(XvQuitarFirma(AXmlFirmado)));
+      Result.DigestDocumento :=
+        SameText(Trim(sCalc), XvLimpiarBase64(sDocDigest));
+    end;
+    // 3) Binding: el certificado del KeyInfo debe ser el referenciado en
+    //    SigningCertificate (cotejo del digest del certificado).
+    p := Pos('<xades:SigningCertificate', AXmlFirmado);
+    if p > 0 then
+    begin
+      sSubSignCert := Copy(AXmlFirmado, p, MaxInt);
+      if XvContenidoElemento(sSubSignCert, 'ds:DigestValue',
+                             sSignCertDigest) then
+      begin
+        sSignCertDigest := XvLimpiarBase64(sSignCertDigest);
+        Result.BindingEvaluado := True;
+        Result.BindingCertificado :=
+          (sSignCertDigest = Base64Bytes(Sha1Bytes(aCertDer))) or
+          (sSignCertDigest = Base64Bytes(Sha256Bytes(aCertDer)));
+      end;
+    end;
   finally
     CertFreeCertificateContext(pCert);
   end;

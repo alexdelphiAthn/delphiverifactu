@@ -1,8 +1,5 @@
 # Generación del QR tributario Veri\*factu — explicación del ejemplo
 
-> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
-
-
 Este documento explica el ejemplo de **generación del código QR tributario** que
 encontrarás en [`examples/05-generar-qr/`](../examples/05-generar-qr). El ejemplo
 toma la **URL de cotejo** de una factura (la que produce

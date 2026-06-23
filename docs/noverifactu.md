@@ -1,8 +1,5 @@
 # Modo NO VERI\*FACTU explicado sin liarse
 
-> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
-
-
 > **Lee esto primero si te confunde el nombre.** "NO VERI\*FACTU" **no** quiere
 > decir "sin sistema fiscal" ni "me salto la ley". Es un modo de facturación
 > **igual de legal** que Veri\*Factu; la única diferencia es que **no envía cada

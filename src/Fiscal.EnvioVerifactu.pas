@@ -1,15 +1,14 @@
-﻿{******************************************************************************}
+{******************************************************************************}
 {                                                                              }
 {  Modulo:       Fiscal.EnvioVerifactu                                          }
 {    Tipo:       Libreria (ejemplo didactico)                                   }
 { Version:       1.0.0                                                          }
 {   Fecha:       17/06/2026                                                     }
 {   Autor:       Alejandro Laorden Hidalgo                                      }
-{   Email:       alejandro.laorden@protonmail.com                               }
 {                                                                              }
 {  Descripcion:                                                                 }
 {    Ejemplo autocontenido de como construir y enviar a la AEAT un registro     }
-{    de facturacion Veri*factu (alta) a partir de los datos de una factura.     }
+{    de facturacion Veri*factu (alta) a partir de una factura estilo Factuzam.  }
 {    Solo depende de la RTL de Delphi. La libreria:                             }
 {      1. Compone el XML del RegistroAlta (esquemas SuministroLR/Informacion).  }
 {      2. Calcula la huella SHA-256 encadenada (cada factura enlaza con la      }
@@ -19,7 +18,7 @@
 {         certificado de la empresa emisora (almacen de Windows).               }
 {                                                                              }
 {    Version simplificada del subsistema de produccion                          }
-{    NO cubre: rectificativas R1/R5                                             }
+{    (src/verifactu/inLibVerifactuEnvio.pas). NO cubre: rectificativas R1/R5    }
 {    con factura original, operaciones exentas, recargo de equivalencia,        }
 {    clientes extranjeros ni firma XAdES. Para esos casos ver el codigo real.   }
 {******************************************************************************}
@@ -38,17 +37,17 @@ type
     Cuota:      Currency;
   end;
 
-  // Factura a comunicar. La aplicacion anfitriona rellena estos campos
-  // a partir de sus propios datos antes de construir el registro.
+  // Factura a comunicar. Los campos calcan las columnas de fza_facturas
+  // (ver el comentario al lado de cada uno) para que el mapeo sea directo.
   TFacturaVerifactu = record
-    Serie:                string;
-    Numero:               string;
-    Fecha:                TDateTime;
-    Tipo:                 string;        // NORMAL / SIMPLIFICADA / ...
-    NifEmisor:            string;
-    NombreEmisor:         string;
-    NifCliente:           string;
-    NombreCliente:        string;
+    Serie:                string;        // SERIE_FAC
+    Numero:               string;        // NUMERO_FAC
+    Fecha:                TDateTime;     // FECHA_FAC
+    Tipo:                 string;        // TIPO_FAC (NORMAL/SIMPLIFICADA...)
+    NifEmisor:            string;        // NIF_EMPRESA_FAC
+    NombreEmisor:         string;        // RAZON_SOCIAL_EMPRESA_FAC
+    NifCliente:           string;        // NIF_CLIENTE_FAC
+    NombreCliente:        string;        // RAZON_SOCIAL_CLIENTE_FAC
     DescripcionOperacion: string;        // texto libre de la operacion
     Bandas:               TArray<TBandaIva>;
     // Tipo de factura segun el catalogo Verifactu (F1/F2/R1...)
@@ -63,13 +62,13 @@ type
     procedure AnadirBanda(APorcentaje, ABase: Currency);
   end;
 
-  // Ultimo eslabon de la cadena de huellas del emisor.
-  // Para el PRIMER registro, dejar Huella vacia.
+  // Ultimo eslabon de la cadena de huellas del emisor. Mapea las columnas
+  // de fza_verifactu_cadena. Para el PRIMER registro, dejar Huella vacia.
   TEslabonCadena = record
-    Serie:  string;
-    Numero: string;
-    Fecha:  string;        // formato dd-mm-aaaa
-    Huella: string;        // '' si es el primer registro
+    Serie:  string;        // SERIE_FAC_VFCAD
+    Numero: string;        // NUMERO_FAC_VFCAD
+    Fecha:  string;        // FECHA_FAC_VFCAD en formato dd-mm-aaaa
+    Huella: string;        // HUELLA_VFCAD ('' si es el primer registro)
   end;
 
   // Resultado de construir el registro de alta listo para enviar
@@ -107,7 +106,7 @@ function FormatearImporte(AImporte: Currency): string;
 function FechaHoraHusoGen(ADt: TDateTime): string;
 // Identificador serie+numero que viaja a la AEAT (concatenacion directa)
 function ComponerNumSerieFactura(const ASerie, ANumero: string): string;
-// Mapea el tipo de factura de la aplicacion al catalogo Verifactu
+// Mapea TIPO_FAC de Factuzam al catalogo de tipos de factura Verifactu
 function TipoFacturaVerifactu(const ATipo: string): string;
 // URL completa de cotejo del QR tributario para una factura
 function ConstruirUrlQR(const ANif, ASerie, ANumero: string;

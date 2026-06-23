@@ -1,9 +1,8 @@
-﻿{******************************************************************************}
+{******************************************************************************}
 {                                                                              }
 {  Modulo:       Fiscal.VerificarNoVerifactu                                   }
 {    Tipo:       Libreria Delphi (ejemplo didactico)                           }
 {   Autor:       Alejandro Laorden Hidalgo                                     }
-{   Email:       alejandro.laorden@protonmail.com                              }
 {                                                                              }
 {  SPDX-License-Identifier: MIT                                                }
 {                                                                              }
@@ -48,6 +47,9 @@ type
     Errores:              Integer;
     Avisos:               Integer;
     Detalle:              string;   // lineas 'ERROR: ...' / 'AVISO: ...'
+    // Una linea por operacion (evento/factura) con su estado: OK / AVISO (n) /
+    // ERROR (n). Incluye tambien las operaciones correctas.
+    Operaciones:          string;
     // True si no hay errores (los avisos no invalidan la verificacion).
     function Correcto: Boolean;
     // Resumen de varias lineas para mostrar por pantalla.
@@ -75,7 +77,8 @@ uses
   System.Hash, System.IOUtils, System.StrUtils,
   Xml.xmldom, Xml.omnixmldom,
   Xml.XMLDoc, Xml.XMLIntf,
-  Fiscal.NoVerifactu;
+  Fiscal.NoVerifactu
+  {$IFDEF MSWINDOWS}, Fiscal.Xades{$ENDIF};
 
 const
   // Perfil de firma exigido por la AEAT (coincide con OpcionesXadesNoVerifactu)
@@ -102,6 +105,31 @@ begin
     Inc(AResultado.Errores)
   else
     Inc(AResultado.Avisos);
+end;
+
+// Anota el estado de una operacion (evento o factura) comparando los
+// contadores de errores/avisos antes y despues de verificarla. Asi el
+// resumen por operacion incluye tambien las correctas (OK).
+procedure AnotarOperacion(var AResultado: TResultadoVerificacion;
+                          const AEtiqueta: string;
+                          AErroresAntes, AAvisosAntes: Integer);
+var
+  iErr: Integer;
+  iAvi: Integer;
+  sEstado: string;
+begin
+  iErr := AResultado.Errores - AErroresAntes;
+  iAvi := AResultado.Avisos - AAvisosAntes;
+  if iErr > 0 then
+    sEstado := 'ERROR (' + IntToStr(iErr) + ')'
+  else if iAvi > 0 then
+    sEstado := 'AVISO (' + IntToStr(iAvi) + ')'
+  else
+    sEstado := 'OK';
+  if AResultado.Operaciones <> '' then
+    AResultado.Operaciones := AResultado.Operaciones + sLineBreak;
+  AResultado.Operaciones := AResultado.Operaciones + AEtiqueta + ' - ' +
+    sEstado;
 end;
 
 // True cuando el fichero declara modo legal (NO_VERIFACTU). En ese caso la
@@ -526,6 +554,62 @@ begin
   end;
 end;
 
+// --- Verificacion criptografica de la firma (solo Windows) -----------------
+
+// Comprueba criptograficamente la firma del registro embebido: firma RSA del
+// SignedInfo y digest del documento contra la clave publica del certificado
+// del KeyInfo, binding con SigningCertificate y vigencia del certificado.
+// Lo concluyente (firma RSA, binding) es ERROR; lo dependiente del entorno
+// (digest recomputado, vigencia a fecha de hoy, o no poder ejecutarse) es
+// AVISO, para no invalidar por causas ajenas a una manipulacion.
+procedure VerificarFirmaCriptografica(const ARegistroXml, AEtiqueta: string;
+                                      var AResultado: TResultadoVerificacion);
+{$IFDEF MSWINDOWS}
+var
+  oVer: TXadesVerificacion;
+{$ENDIF}
+begin
+{$IFDEF MSWINDOWS}
+  try
+    oVer := VerificarFirmaXadesEnveloped(ARegistroXml);
+  except
+    on E: Exception do
+    begin
+      AgregarDetalle(AResultado, 'AVISO',
+        AEtiqueta + ': no se pudo verificar la firma (' + E.Message + ').');
+      Exit;
+    end;
+  end;
+  if not oVer.Ejecutada then
+    AgregarDetalle(AResultado, 'AVISO',
+      AEtiqueta + ': no se pudo verificar la firma criptograficamente (' +
+      oVer.Detalle + ').')
+  else
+  begin
+    if not oVer.FirmaValida then
+      AgregarDetalle(AResultado, 'ERROR',
+        AEtiqueta + ': la firma RSA del SignedInfo no es valida ' +
+        '(firma o clave manipulada).');
+    if oVer.BindingEvaluado and (not oVer.BindingCertificado) then
+      AgregarDetalle(AResultado, 'ERROR',
+        AEtiqueta + ': el certificado del KeyInfo no coincide con el ' +
+        'referenciado en SigningCertificate.');
+    if not oVer.DigestDocumento then
+      AgregarDetalle(AResultado, 'AVISO',
+        AEtiqueta + ': el digest del documento no coincide (posible ' +
+        'alteracion del contenido o diferencia de formato).');
+    if not oVer.CertificadoVigente then
+      AgregarDetalle(AResultado, 'AVISO',
+        AEtiqueta + ': el certificado firmante esta fuera de su periodo de ' +
+        'validez a la fecha actual.');
+  end;
+{$ELSE}
+  AgregarDetalle(AResultado, 'AVISO',
+    AEtiqueta + ': verificacion criptografica de la firma no disponible en ' +
+    'esta plataforma.');
+{$ENDIF}
+end;
+
 // --- Verificacion de un evento y de un registro de facturacion -------------
 
 procedure VerificarEvento(const AEvento: IXMLNode; AIndice: Integer;
@@ -541,7 +625,11 @@ var
   sHuellaXml:      string;
   sSignatureValue: string;
   sTipo:           string;
+  iErrAntes:       Integer;
+  iAviAntes:       Integer;
 begin
+  iErrAntes := AResultado.Errores;
+  iAviAntes := AResultado.Avisos;
   sTipo := TipoIncidenciaFirma(AResultado);
   sId := TextoHijo(AEvento, 'Id');
   sHashAnterior := UpperCase(TextoHijo(AEvento, 'HashAnterior'));
@@ -589,9 +677,11 @@ begin
         AgregarDetalle(AResultado, 'ERROR',
           'Evento ' + sId + ': FirmaDigital no coincide con FirmaXades.');
       VerificarPerfilXades(sRegistroXml, 'Evento ' + sId, True, AResultado);
+      VerificarFirmaCriptografica(sRegistroXml, 'Evento ' + sId, AResultado);
     end;
   end;
   AHashAnteriorEsperado := sHashPropio;
+  AnotarOperacion(AResultado, 'Evento ' + sId, iErrAntes, iAviAntes);
 end;
 
 procedure VerificarRegistroFactura(const ARegistro: IXMLNode; AIndice: Integer;
@@ -606,7 +696,11 @@ var
   sFirma:          string;
   sSignatureValue: string;
   sTipo:           string;
+  iErrAntes:       Integer;
+  iAviAntes:       Integer;
 begin
+  iErrAntes := AResultado.Errores;
+  iAviAntes := AResultado.Avisos;
   sTipo := TipoIncidenciaFirma(AResultado);
   sSerie  := TextoHijo(ARegistro, 'Serie');
   sNumero := TextoHijo(ARegistro, 'Numero');
@@ -644,8 +738,11 @@ begin
           'Factura ' + sEtiqueta + ': SignatureValue no coincide.');
       VerificarPerfilXades(sRegistroXml, 'Factura ' + sEtiqueta, False,
         AResultado);
+      VerificarFirmaCriptografica(sRegistroXml, 'Factura ' + sEtiqueta,
+        AResultado);
     end;
   end;
+  AnotarOperacion(AResultado, 'Factura ' + sEtiqueta, iErrAntes, iAviAntes);
 end;
 
 // --- Recorrido de los contenedores -----------------------------------------

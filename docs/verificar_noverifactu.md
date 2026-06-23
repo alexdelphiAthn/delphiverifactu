@@ -1,8 +1,5 @@
 # Verificador de registros NO VERI\*FACTU
 
-> **Autor:** Alejandro Laorden Hidalgo · alejandro.laorden@protonmail.com
-
-
 `Fiscal.VerificarNoVerifactu.pas` comprueba **en local**, sin red ni procesos
 externos, los ficheros que genera `Fiscal.NoVerifactu` (los del ejemplo
 [`08-noverifactu-facturas`](../examples/08-noverifactu-facturas) y
@@ -25,6 +22,11 @@ Es el complemento natural del generador: **genera con `07`/`08` → verifica con
 5. **Perfil XAdES** — algoritmos (RSA-SHA256, SHA-256 en las referencias, C14N)
    y **política AGE** (`urn:oid:2.16.724.1.3.1.1.2.1.9`, hash SHA-1, URL de
    sede) exigidos por la AEAT.
+6. **Firma RSA (solo Windows)** — recomputa el digest del documento (transform
+   *enveloped*) y verifica el `SignatureValue` con la **clave pública** del
+   certificado del `KeyInfo`, comprueba su **vigencia** y que sea el
+   certificado **referenciado** en `SigningCertificate`. Reutiliza la
+   criptografía de `Fiscal.Xades` (CryptoAPI de Windows).
 
 ## Errores vs avisos
 
@@ -35,15 +37,29 @@ El verificador lee el atributo `ModoVerifactu` del XML:
 - **`SIN`** (exportación demo, sin certificado): esos mismos puntos son solo
   **AVISO**, porque el fichero no pretende ser un cierre legal.
 
+En la verificación criptográfica (punto 6): una **firma RSA inválida** o un
+certificado del `KeyInfo` que **no coincide** con el de `SigningCertificate` son
+**ERROR**. En cambio, que el **digest del documento** no cuadre, que el
+certificado esté **fuera de vigencia a la fecha actual** (normal en facturas
+antiguas) o que la criptografía **no se pueda ejecutar** (otra plataforma, sin
+proveedor) son **AVISO**, para no invalidar por causas ajenas a una
+manipulación.
+
 `Errores = 0` ⇒ verificación **correcta** (los avisos no la invalidan).
 
 ## Qué NO hace (importante)
 
-**No valida criptográficamente la firma RSA**: no rehace el digest del documento
-ni comprueba la cadena de confianza del certificado. Comprueba **estructura,
-encadenamiento y coherencia/perfil** de la firma. Para la validación legal
-completa de la firma, extrae un **registro individual firmado**
-(`RegistroXmlFirmado`) y llévalo a **VALIDe**.
+En Windows **sí** verifica la firma RSA y el digest del documento (punto 6),
+pero con dos límites:
+
+- **No comprueba la cadena de confianza** del certificado (que la CA raíz sea
+  de confianza, revocación/OCSP). Solo valida la firma y la vigencia.
+- La verificación de firma asume la **canonicalización limitada** de esta
+  librería; está pensada para los ficheros que ella genera, no para cualquier
+  XAdES de terceros con otro formato.
+
+Para la validación legal completa de la firma, extrae un **registro individual
+firmado** (`RegistroXmlFirmado`) y llévalo a **VALIDe**.
 
 ## API pública
 
@@ -54,6 +70,11 @@ completa de la firma, extrae un **registro individual firmado**
 - `VerificarContenido` — igual, pero recibiendo el XML en memoria (útil para
   verificar lo recién generado o para tests).
 - `TResultadoVerificacion.Correcto` / `.Resumen` — resultado y resumen.
+- `TResultadoVerificacion.Operaciones` — una línea por operación (evento /
+  factura) con su estado `OK` / `AVISO (n)` / `ERROR (n)`, incluyendo las
+  correctas (resumen línea a línea).
+- `Fiscal.Xades.VerificarFirmaXadesEnveloped` — verificación criptográfica de
+  una firma XAdES Enveloped; la usa el verificador internamente en Windows.
 
 ## Uso típico
 
@@ -72,7 +93,9 @@ end;
 ## El ejemplo
 
 [`09-verificar-noverifactu`](../examples/09-verificar-noverifactu) deduce la
-pareja, verifica y escribe un informe `verificacion_<nombre>.txt`:
+pareja, verifica (en Windows también la firma RSA) y muestra un **resumen por
+operación** (`OK` / `AVISO` / `ERROR` por cada evento y factura) además del
+detalle, escribiendo un informe `verificacion_<nombre>.txt`:
 
 ```text
 :: 1) genera (demo, sin certificado):
